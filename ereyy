@@ -1,0 +1,296 @@
+233172_Neha_Kewate     PRN : 230341220104
+
+package com.core.hospital;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import EnumType.roomType;
+public class Patient implements Serializable {
+
+	private int serialNo ;
+	private String patientName;
+	private int age;
+	private String gender;
+	private String address;
+	private String phoneNumber;
+	private String disease;
+	private LocalDate admitDate;
+	private double annualIncome;
+	private roomType roomtype;
+	
+	
+	public Patient(int serialNo, String patientName, int age, String gender, String address, String phoneNumber,
+			String disease, LocalDate admitDate, double annualIncome, roomType roomtype ) {
+		super();
+		this.serialNo = serialNo;
+		this.patientName = patientName;
+		this.age = age;
+		this.gender = gender;
+		this.address = address;
+		this.phoneNumber = phoneNumber;
+		this.disease = disease;
+		this.admitDate = admitDate;
+		this.annualIncome = annualIncome;
+		this.roomtype = roomtype;
+	}
+
+
+	public roomType getRoomtype() {
+		return roomtype;
+	}
+
+
+	public void setRoomtype(roomType roomtype) {
+		this.roomtype = roomtype;
+	}
+
+
+	public String getGender() {
+		return gender;
+	}
+
+
+	public String getDisease() {
+		return disease;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Patient [serialNo=" + serialNo + ", patientName=" + patientName + ", age=" + age + ", gender=" + gender
+				+ ", address=" + address + ", phoneNumber=" + phoneNumber + ", disease=" + disease + ", admitDate="
+				+ admitDate + ", annualIncome=" + annualIncome + ", roomtype=" + roomtype + "]";
+	}
+	
+	
+	
+	
+}
+
+package EnumType;
+
+public enum roomType {
+     
+	GENERAL(2000),SPECIAL(5000),SEMI_SPECIAL(3000),ICU(7000);
+	
+	public double price;
+
+	private roomType(double price) {
+		this.price = price;
+	}
+	public String getPrice() {
+		return name()+": "+price;
+	}
+	
+	
+}
+
+package Validations;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.core.hospital.Patient;
+
+import EnumType.roomType;
+import customeException.HospitalManagementException;
+
+public class ValidationRules {
+	
+	public static Patient validateAllInputs(int serialNo, String patientName, int age, String gender, String address, String phoneNumber,
+			String disease, String admitDate, double annualIncome, String roomtype, List<Patient> pList) throws HospitalManagementException {
+		
+		LocalDate AdmitDate=parseDate(admitDate);
+		roomType Rtype=ValidateRoom(roomtype);
+
+		return new Patient(serialNo,patientName,age,gender,address,phoneNumber,disease,AdmitDate,annualIncome,Rtype);
+	}//////
+	
+	public static LocalDate parseDate(String Adate) throws HospitalManagementException {
+		LocalDate date=LocalDate.parse(Adate);
+		LocalDate today=LocalDate.now();
+		if(date!=today)
+			throw new HospitalManagementException("Invalid Date Entered!!!!!!!!!");	
+		
+		return date;
+	}////////////
+	 
+	public static roomType ValidateRoom(String roomtype) {
+			
+		return roomType.valueOf(roomtype.toUpperCase());
+	}//////
+
+}
+
+package FileIO;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.core.hospital.Patient;
+
+public class Ser_Dser {
+	
+	public static void storePatient (String filename , List<Patient> patientList) throws IOException {
+		
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename));
+			out.writeObject(patientList);
+		}catch ( Exception e) {
+			e.printStackTrace();
+		}
+		
+	}//end of ser
+		
+	public static ArrayList<Patient> restorePatient(String filename) {
+		
+	 try {
+		 ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
+		 return (ArrayList<Patient>)in.readObject();
+	 }catch( Exception e) {
+		 e.printStackTrace();
+		 return new ArrayList<Patient>();
+	 }
+	 
+	}//end of dser
+	
+}//end of class
+package customeException;
+
+@SuppressWarnings("serial")
+public class HospitalManagementException extends Exception {
+    
+	public HospitalManagementException(String errMsg) {
+		System.out.println(errMsg);
+	}
+}
+package sorting;
+
+public class SortBasedOnroomType {
+
+}
+package sorting;
+
+public class sortbasedOnGender {
+
+}
+package tester;
+
+import static FileIO.Ser_Dser.restorePatient;
+import static FileIO.Ser_Dser.storePatient;
+import static Validations.ValidationRules.ValidateRoom;
+import static Validations.ValidationRules.validateAllInputs;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.core.hospital.Patient;
+
+import EnumType.roomType;
+
+public class HospitalManagement {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+          
+		try(Scanner sc= new Scanner(System.in)){
+			
+		System.out.println("Enter the filename :");
+		String filename=sc.next();
+		List<Patient> patientList=restorePatient(sc.next()); 
+		
+		System.out.println("1. Add Patient Records \r\t"
+				+ "2. Display All the Patients \r\t"
+				+ "3. Display Patient on room type choosen by patient \r\t"
+				+ "4. Remove all patient who has disease \" Diabetese\" \r\t"
+				+ "5. change the room type of patient who is from CPU to SpecialRoom \r\t"
+				+ "6. Sort the patient based on the gender ");
+		
+		int ch=1;
+		while(ch!=0) {
+			System.out.println("Enter choice :");
+			ch=sc.nextInt();
+			
+			try {
+				switch(ch) {
+				case 0:
+					storePatient(filename,patientList);
+					System.out.println("Exit!!!!!!!!!!!!!!!!!!!");
+					 break;
+					 
+				case 1://1. Add Patient Records
+
+					System.out.println("Enter the serialNo,patientName,age,gender,address,phoneNumber,"
+							+ "disease,admitDate,annualIncome,roomtype(GENERAL(2000),SPECIAL(5000),SEMI_SPECIAL(3000),ICU(7000))");
+					 patientList.add(validateAllInputs(sc.nextInt(),sc.next(),sc.nextInt(),sc.next(),sc.next(),sc.next(),sc.next(),sc.next(),sc.nextDouble(),sc.next(),patientList));
+					 break;
+				case 2://2. Display All the Patients 
+					System.out.println("All Paitents are as fallows :");
+					patientList.forEach(s->System.out.println(s));
+					
+					 break;
+				case 3://3. Display Patient on room type choosen by patient
+					System.out.println("Enter the room Type :");
+					String type=sc.next();
+				    roomType room=ValidateRoom(type);
+				    
+//				    if ()
+					
+					
+					 break;
+				case 4://4. Remove all patient who has disease \" Diabetese\"
+//					 patientList.removeIf(s-> s.getDisease().equals("Diabetese"));
+//					 
+//					 patientList.removeif();
+//					
+					 break;
+				case 5:
+					 break;
+				case 6://6. Sort the patient based on the gender 
+					System.out.println("Enter the gender:");
+//					String gender=sc.next();
+//					patientList.stream()
+//					.filter(s -> (s.getGender()==gender) )
+//					.forEach();
+					
+//					
+//					   collection.sort(patientList,new comparator<Patient>() {
+//						   
+//						   public int Compare()
+//						   
+//					   });
+					
+					
+					 break;
+				
+				}
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				sc.nextLine();
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		}//end of try with resources
+		
+		
+	}
+
+}
+
