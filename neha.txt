@@ -1,0 +1,148 @@
+package tester;
+
+import static FileIO.Ser_Dser.restorePatient;
+import static FileIO.Ser_Dser.storePatient;
+import static Validations.ValidationsRules.ValidateRoom;
+import static Validations.ValidationsRules.validateAllInputs;
+
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import com.core.hospital.Patient;
+
+import EnumType.roomType;
+
+public class HospitalManagement {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+          
+		try(Scanner sc= new Scanner(System.in)){
+			
+		System.out.println("Enter the filename :");
+		String filename=sc.next();
+		List<Patient> patientList=restorePatient(filename); 
+		
+		System.out.println("1. Add Patient Records \r\t"
+				+ "2. Display All the Patients \r\t"
+				+ "3. Display Patient on room type choosen by patient \r\t"
+				+ "4. Remove all patient who has disease \" Diabetese\" \r\t"
+				+ "5. change the room type of patient who is from CPU to SpecialRoom \r\t"
+				+ "6. Sort the patient based on the gender ");
+		
+		int ch=1;
+		while(ch!=0) {
+			System.out.println("Enter choice :");
+			ch=sc.nextInt();
+			
+			try {
+				switch(ch) {
+				case 0:
+					storePatient(filename,patientList);
+					System.out.println("Exit!!!!!!!!!!!!!!!!!!!");
+					 break;
+					 
+				case 1://1. Add Patient Records
+
+					System.out.println("Enter the serialNo,patientName,age,gender,address,phoneNumber,"
+							+ "disease,admitDate,annualIncome,roomtype(GENERAL(2000),SPECIAL(5000),SEMI_SPECIAL(3000),ICU(7000))");
+					 patientList.add(validateAllInputs(sc.nextInt(),sc.next(),sc.nextInt(),sc.next(),sc.next(),sc.next(),sc.next(),sc.next(),sc.nextDouble(),sc.next(),patientList));
+					 break;
+				case 2://2. Display All the Patients 
+					System.out.println("All Paitents are as fallows :");
+					patientList.forEach(s->System.out.println(s));
+					
+					 break;
+				case 3://3. Display Patient on room type choosen by patient
+					System.out.println("Enter the room Type :");
+					String type=sc.next();
+				    roomType room=ValidateRoom(type);
+				    patientList.stream()
+				    .filter(s-> s.getRoomtype().equals(room))
+				    .forEach(s->System.out.println(s));
+                     
+					
+					
+					 break;
+				case 4://4. Remove all patient who has disease \" Diabetese\"
+//					 patientList.removeIf(s-> s.getDisease().equals("Diabetese"));
+//					 
+//					 patientList.removeif();
+					
+					int ser_no = 0;
+					for(Patient p:patientList) {
+						if(p.getDisease().equals("Diabetese"))
+						    ser_no= p.getSerialNo();
+					}
+					
+					patientList.remove(ser_no);
+					
+					
+					
+					 break;
+				case 5://5. change the room type of patient who is from CPU to SpecialRoom
+					   System.out.println("Enter the name of patient:");
+					   String name=sc.next();
+					   
+					   for(Patient p:patientList) {
+						   if(p.getPatientName().equals(name))
+							   p.setRoomtype(roomType.SPECIAL);
+					   }
+					
+					 break;
+				case 6://6. Sort the patient based on the gender 
+					System.out.println("Enter the gender:");
+//					String gender=sc.next();
+//					patientList.stream()
+//					.filter(s -> (s.getGender()==gender) )
+//					.forEach();
+					
+//					
+//					   collection.sort(patientList,new comparator<Patient>() {
+//						   
+//						   public int Compare()
+//						   
+//					   });
+					
+					
+					System.out.println("Enter gender to sort:");
+					String gender=sc.next();
+					
+				//Stream<Patient> Is=
+//					patientList.stream()
+//					.filter(s->s.getGender().equals(gender))
+//					.sorted();
+					
+					patientList.stream()
+					.filter(s->s.getGender().equals(gender))
+				     .sorted()        
+					.forEach(s->System.out.println(s));
+				 //Is.forEach(s->System.out.println(s));
+					
+					 break;
+				
+				}
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				sc.nextLine();
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		}//end of try with resources
+		
+		
+	}
+
+}
